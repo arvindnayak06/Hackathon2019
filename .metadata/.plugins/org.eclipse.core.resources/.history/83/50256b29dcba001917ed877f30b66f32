@@ -1,0 +1,21 @@
+package org.hackathon.cardless.orchestrator.service;
+
+import org.apache.log4j.Logger;
+import org.hackathon.cardless.orchestrator.api.OrchestratorEndpoints;
+import org.hackathon.cardless.orchestrator.model.Accounts;
+import org.hackathon.cardless.orchestrator.model.CustomerAccounts;
+import org.hackathon.cardless.orchestrator.model.TransactionReq;
+
+public class OrchestratorService {
+	final static Logger logger = Logger.getLogger(OrchestratorService.class);
+	
+	public void validateCCTxReq(TransactionReq txReq, CustomerAccounts custAccs) {
+		logger.info("Inside validateCCTxReq method");
+		Accounts[] accs = custAccs.getAccounts();
+		for(int i=0;i<accs.length;i++) {
+			if(accs[i].getSortCode() == txReq.getSortCode() && accs[i].getAccountNumber() == txReq.getAccountNumber()) {
+				if()
+			}
+		}
+	}
+}

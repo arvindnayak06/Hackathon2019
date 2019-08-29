@@ -1,0 +1,10 @@
+package org.hackathon.cardless.transaction.model;
+
+public class TransactionReq {
+	private String sortCode;
+	private String accountNumber;
+	private String customerId;
+	private String amount;
+	private String transactionType;
+
+}

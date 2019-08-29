@@ -1,0 +1,14 @@
+package org.hackathon.cardless.orchestrator.service;
+
+import org.hackathon.cardless.orchestrator.model.Accounts;
+import org.hackathon.cardless.orchestrator.model.CustomerAccounts;
+import org.hackathon.cardless.orchestrator.model.TransactionReq;
+
+public class OrchestratorService {
+	public void validateCCTxReq(TransactionReq txReq, CustomerAccounts custAccs) {
+		Accounts[] accs = custAccs.getAccounts();
+		for(int i=0;i<accs.length;i++) {
+			if(accs[i].getSortCode() == txReq.getSortCode() && accs[i].getAccountNumber() == txReq.getAccountNumber() )
+		}
+	}
+}

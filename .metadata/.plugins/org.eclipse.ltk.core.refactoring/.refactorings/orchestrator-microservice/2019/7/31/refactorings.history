@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename compilation unit &apos;org.hackathon.cardless.orchestrator.api.RESTActivator.java&apos; to &apos;RestActivator.java&apos;&#x0D;&#x0A;- Original project: &apos;orchestrator-microservice&apos;&#x0D;&#x0A;- Original element: &apos;org.hackathon.cardless.orchestrator.api.RESTActivator.java&apos;&#x0D;&#x0A;- Renamed element: &apos;org.hackathon.cardless.orchestrator.api.RestActivator.java&apos;" description="Rename compilation unit &apos;RESTActivator.java&apos;" flags="2" id="org.eclipse.jdt.ui.rename.compilationunit" input="/src\/main\/java&lt;org.hackathon.cardless.orchestrator.api{RESTActivator.java" name="RestActivator.java" references="false" stamp="1564554395973" version="1.0"/>
+</session>

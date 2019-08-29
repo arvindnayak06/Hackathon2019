@@ -1,0 +1,124 @@
+package org.hackathon.cardless.transaction.api;
+
+import java.net.MalformedURLException;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.log4j.Logger;
+import org.hackathon.cardless.transaction.model.Transaction;
+import org.hackathon.cardless.transaction.service.CloudantQueryService;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
+@Path("/transaction")
+public class TransactionEndpoint {
+	@Inject
+	private CloudantQueryService cqs;
+	private Response response;
+	final static Logger logger = Logger.getLogger(TransactionEndpoint.class);
+
+	@POST
+	@Path("/cardlesscash")
+    @Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response saveTx(Transaction tx) {
+		
+		logger.info("Inside saveTx method. invoking saveTxToDb method");
+		try {
+			boolean isSuccess = cqs.savetoTxDb(tx);
+			logger.info("is success: "+isSuccess);
+			if(isSuccess) {
+				logger.info("save a success");
+				response = Response.status(Response.Status.CREATED).type(MediaType.APPLICATION_JSON).build();
+			}else {
+				logger.info("save not a success");
+				response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Unable to save to DB.\"}").build();
+			}
+		}catch(MalformedURLException e){
+			logger.info("MalformedURLException");
+			// can be thrown by cloudant client
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"malformed URL exception while connecting to cloudant.\"}").build();
+		}catch(Exception e) {
+			logger.info("General catch all exception: "+e);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"General exception\"}").build();
+			
+		}
+		return response;
+	}
+	
+	
+	@PUT
+	@Path("/cardlesscash")
+    @Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updateTx(Transaction tx) {
+		
+		logger.info("Inside updateTx method. invoking saveTxToDb method");
+		try {
+			boolean isSuccess = cqs.updateTxDb(tx);
+			logger.info("is success: "+isSuccess);
+			if(isSuccess) {
+				logger.info("save a success");
+				response = Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).build();
+			}else {
+				logger.info("save not a success");
+				response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Unable to save to DB.\"}").build();
+			}
+		}catch(MalformedURLException e){
+			logger.info("MalformedURLException");
+			// can be thrown by cloudant client
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"malformed URL exception while connecting to cloudant.\"}").build();
+		}catch(Exception e) {
+			logger.info("General catch all exception: "+e);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"General exception\"}").build();
+			
+		}
+		return response;
+	}
+	
+	
+	/*
+	 * This is invoked from the orchestrator service while withdrawing cash
+	 */
+	@GET
+	@Path("/cardlesscash/query")
+    @Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getTx(/*@QueryParam("mobile")String mobileNo,*/@QueryParam("token")String bankToken){
+		Transaction tx=null;
+		ObjectMapper mapper = new ObjectMapper();
+		
+		logger.info("Inside getTx method. invoking getFromTxDb method");
+		try {
+			tx = cqs.getFromTxDb(/*mobileNo,*/bankToken);
+			if(tx != null) {
+				logger.info("record found in db");
+				response = Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(mapper.writeValueAsString(tx)).build();
+			}
+			else {
+				logger.info("record not found in db");
+				response = Response.status(Response.Status.NOT_FOUND).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"No transaction found with bank token "+bankToken+"\"}").build();
+			}
+		}catch(MalformedURLException e) {
+			logger.info("MalformedURLException");
+			// can be thrown by cloudant client
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"malformed URL exception while connecting to cloudant.\"}").build();
+		}
+		catch(JsonProcessingException e) {
+			// can be thrown by fasterxml.jackson
+				response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Internal Server Error encountered.\"}").build();
+		}
+		return response;
+	}
+}

@@ -1,0 +1,111 @@
+package org.hackathon.cardless.customeraccounts.service;
+
+import static com.cloudant.client.api.query.Expression.eq;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.apache.log4j.Logger;
+import org.hackathon.cardless.customeraccounts.model.CustomerAccounts;
+
+import com.cloudant.client.api.ClientBuilder;
+import com.cloudant.client.api.CloudantClient;
+import com.cloudant.client.api.Database;
+import com.cloudant.client.api.query.QueryBuilder;
+import com.cloudant.client.api.query.QueryResult;
+
+public class CloudantQueryService {
+	private CloudantClient client;
+	private Database db;
+	private CustomerAccounts custAccs;
+	final static Logger logger = Logger.getLogger(CloudantQueryService.class);
+	
+	public CloudantQueryService() {
+		
+	}
+	
+	/*
+	 * This method is responsible for connecting with a cloudant instance on IBM cloud.
+	 */
+	public void connectToCloudant() throws MalformedURLException {
+		
+		client = ClientBuilder				
+	            .url(new URL("https://ae976554-9e77-4668-8b14-853b977e79a0-bluemix:d4eb5982839e19e9cec2ff9bf31851617d513360a823293f2986b8317e2a84fa@ae976554-9e77-4668-8b14-853b977e79a0-bluemix.cloudantnosqldb.appdomain.cloud"))
+	            .username("ae976554-9e77-4668-8b14-853b977e79a0-bluemix")
+	            .password("d4eb5982839e19e9cec2ff9bf31851617d513360a823293f2986b8317e2a84fa")
+	            .build();
+	}
+
+	/*
+	 * This method is responsible for establishing a connection to said cloudant db.
+	 */
+	public Database connectToDb(CloudantClient client, String dbName, boolean createNew) {
+		return client.database(dbName, createNew);
+	}
+	
+	public CustomerAccounts getDetailsByCustomerId(String custId, boolean requireDetailed) throws MalformedURLException {
+		connectToCloudant();
+		logger.info("Connected to cloudant.");
+		db = connectToDb(client,"customer_accounts_db", false);
+		logger.info("connected to customer_accounts_db");
+		
+		// create query to fetch document based on customerId
+		// in this instance the DB does not have an index but data is still retrieved
+		// index is primarily helpful for faster retrieval but seems is not mandatory? - learning
+		QueryResult<CustomerAccounts> result = null;
+		if(requireDetailed) {
+			result = db.query(new QueryBuilder(eq("customerId", custId))
+				 	   .fields("_id","_rev","customerId","firstName", "middleName", "lastName", "mobileNumber", "accounts","userToken")
+		 		 	   .build(), CustomerAccounts.class);
+
+		}else {
+			result = db.query(new QueryBuilder(eq("customerId", custId))
+			  	 	   .fields("_id","_rev","customerId","firstName", "middleName", "lastName", "mobileNumber", "accounts")
+					   .build(), CustomerAccounts.class);
+		}
+		if(result!=null && result.getDocs()!=null && !result.getDocs().isEmpty()) {
+			custAccs = result.getDocs().get(0);
+		}
+
+		return custAccs;
+	}
+	
+	public CustomerAccounts getCustomerDetailsByMobileNumber(String mobileNumber, boolean requireDetailed) throws MalformedURLException {
+		connectToCloudant();
+		logger.info("Connected to cloudant.");
+		db = connectToDb(client,"customer_accounts_db", false);
+		logger.info("connected to customer_accounts_db");
+		
+		// create query to fetch document based on customerId
+		// in this instance the DB does not have an index but data is still retrieved
+		// index is primarily helpful for faster retrieval but seems is not mandatory? - learning
+		QueryResult<CustomerAccounts> result = null;
+		if(requireDetailed) {
+			result = db.query(new QueryBuilder(eq("mobileNumber", mobileNumber))
+				 	   .fields("_id","_rev","customerId","firstName", "middleName", "lastName", "mobileNumber", "accounts","userToken")
+		 		 	   .build(), CustomerAccounts.class);
+
+		}else {
+			result = db.query(new QueryBuilder(eq("mobileNumber", mobileNumber))
+			  	 	   .fields("_id","_rev","customerId","firstName", "middleName", "lastName", "mobileNumber", "accounts")
+					   .build(), CustomerAccounts.class);
+		}
+		if(result!=null && result.getDocs()!=null && !result.getDocs().isEmpty()) {
+			custAccs = result.getDocs().get(0);
+		}
+
+		return custAccs;
+	}
+	/*
+	public static void main(String args[]) {
+		CloudantQueryService app = new CloudantQueryService();
+		try {
+			CustomerAccounts custAccs = app.getDetailsByCustomerId("001");
+			
+		}
+		catch(Exception e){
+			System.out.println("Error Details: "+e);
+		}
+	}
+	*/
+}

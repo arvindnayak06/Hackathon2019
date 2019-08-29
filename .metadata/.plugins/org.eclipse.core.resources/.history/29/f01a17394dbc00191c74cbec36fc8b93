@@ -1,0 +1,100 @@
+package org.hackathon.cardless.transaction.service;
+
+import static com.cloudant.client.api.query.Expression.eq;
+import static com.cloudant.client.api.query.Operation.and;;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.apache.log4j.Logger;
+import org.hackathon.cardless.customeraccounts.model.CustomerAccounts;
+import org.hackathon.cardless.transaction.model.Transaction;
+
+import com.cloudant.client.api.ClientBuilder;
+import com.cloudant.client.api.CloudantClient;
+import com.cloudant.client.api.Database;
+import com.cloudant.client.api.model.Response;
+import com.cloudant.client.api.query.QueryBuilder;
+import com.cloudant.client.api.query.QueryResult;
+
+public class CloudantQueryService {
+
+	private CloudantClient client;
+	private Database db;	
+	final static Logger logger = Logger.getLogger(CloudantQueryService.class);
+	
+	public CloudantQueryService() {
+		
+	}
+	
+	/*
+	 * This method is responsible for connecting to a Cloudant instance on IBM cloud.
+	 */
+	public void connectToCloudant() throws MalformedURLException {
+		
+		client = ClientBuilder				
+	            .url(new URL("https://ae976554-9e77-4668-8b14-853b977e79a0-bluemix:d4eb5982839e19e9cec2ff9bf31851617d513360a823293f2986b8317e2a84fa@ae976554-9e77-4668-8b14-853b977e79a0-bluemix.cloudantnosqldb.appdomain.cloud"))
+	            .username("ae976554-9e77-4668-8b14-853b977e79a0-bluemix")
+	            .password("d4eb5982839e19e9cec2ff9bf31851617d513360a823293f2986b8317e2a84fa")
+	            .build();
+	}
+
+	/*
+	 * This method is responsible for establishing a connection to specified Cloudant database.
+	 */
+	public Database connectToDb(CloudantClient client, String dbName, boolean createNew) {
+		return client.database(dbName, createNew);
+	}
+	
+	public boolean savetoTxDb(Transaction tx) throws MalformedURLException{
+		boolean isSuccess;
+
+		connectToCloudant();
+		db = connectToDb(client,"transaction_db", false);
+		// save document to database
+		Response resp = db.save(tx);
+		if(resp.getStatusCode()/100==2) {
+			logger.info("Document save a success!!");
+			isSuccess=true;
+		}else {
+			logger.info("Unable to save document: "+resp.getError());
+			isSuccess=false;
+		}
+			
+		return isSuccess;
+	}
+	
+	
+	public Transaction getFromTxDb(String mobileNo,String bankToken) throws MalformedURLException{
+		logger.info("Transaction. Inside method getFromTxDb.");
+		connectToCloudant();
+		logger.info("Connected to cloudant.");
+		db = connectToDb(client,"transaction_db", false);
+		logger.info("connected to transaction_db");
+		
+		// create query to fetch document based on customerId
+		// in this instance the DB does not have an index but data is still retrieved
+		// index is primarily helpful for faster retrieval but seems is not mandatory? - learning
+		QueryResult<Transaction> result = null;
+		result = db.query(new QueryBuilder(and(eq("mobileNumber", mobileNo),eq("bankToken", bankToken)))
+			 	   .fields("_id","_rev","customerId","firstName", "middleName", "lastName", "mobileNumber", "accounts","userToken")
+	 		 	   .build(), Transaction.class);
+	}
+	
+	
+	/*
+	public static void main(String args[]) {
+		Transaction tx = new Transaction();
+		tx.setCustomerId("12345");
+		tx.setSortCode("202020");
+		tx.setAccountNumber("87654321");
+		tx.setBankToken("101010");
+		tx.setAmount("100.10");
+		tx.setStatus("incomplete");
+		tx.setTransactionType("cardlessCash");
+		try {
+			System.out.println(new CloudantQueryService().savetoTxDb(tx));
+		}catch(Exception e) {}
+	}
+	*/
+}

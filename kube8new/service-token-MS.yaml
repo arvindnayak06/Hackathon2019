@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: token-srv
+spec:
+  selector:
+    app: cardlesscash
+    microservice: token
+  ports:
+  - protocol: TCP
+    port: 8084
+    targetPort: 8084
+  type: ClusterIP

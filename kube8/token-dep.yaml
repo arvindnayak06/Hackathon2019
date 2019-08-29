@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: token-dep
+spec:
+  # Defines which pods are managed by this deployment.
+  selector:
+  # Defines the labels to match to select pods to manage. Must match the labels on pods!
+    matchLabels:
+      app: cardlesscash
+      microservice: token
+   # Defines how many copies of each pod do we want
+  replicas: 1
+  # This template field is a regular pod configuration 
+  # nested inside the deployment spec
+  template:
+    metadata:
+      # Set labels on the pod.
+      # This is used in the deployment selector.
+      labels:
+        app: cardlesscash
+        microservice: token
+    spec:
+      containers:
+        - name: token-microservice
+          # this must be from image repo
+          image: "au.icr.io/cardlesscash-ns/token-microservice:10"
+          ports:
+            - name: http
+              containerPort: 8084
+          env:
+            - name: CC_TOKEN_SIZE
+              value: "6"

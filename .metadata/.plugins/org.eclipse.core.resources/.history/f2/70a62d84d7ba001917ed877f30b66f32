@@ -1,0 +1,12 @@
+package org.hackathon.cardless.transaction.service;
+
+public class TransactionService {
+	
+	
+	public boolean validateCCTxReq(String CustId) {
+		
+		// make a rest call to cusstomer_Accounts to get customer details based on customer ID.
+		
+	}
+
+}

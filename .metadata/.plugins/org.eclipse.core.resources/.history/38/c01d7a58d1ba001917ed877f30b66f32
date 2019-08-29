@@ -1,0 +1,5 @@
+package org.hackathon.cardless.transaction.model;
+
+public class Transaction {
+
+}

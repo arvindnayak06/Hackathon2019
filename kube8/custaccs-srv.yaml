@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: custaccs-srv
+spec:
+  selector:
+    app: cardlesscash
+    microservice: custaccs
+  ports:
+  - protocol: TCP
+    port: 8082
+    targetPort: 8082
+  type: ClusterIP

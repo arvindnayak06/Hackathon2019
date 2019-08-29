@@ -1,0 +1,122 @@
+package org.hackathon.cardless.transaction.model;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Transaction {
+	private String sortCode;
+	private String accountNumber;
+	private String customerId;
+//	private String mobileNumber;
+//	private String userToken;
+	private String bankToken;
+	private String amount;
+	private String transactionType;
+	private String active;
+	private String status;
+	private String validTill;
+	
+	public String getSortCode() {
+		return sortCode;
+	}
+	public void setSortCode(String sortCode) {
+		this.sortCode = sortCode;
+	}
+	public String getAccountNumber() {
+		return accountNumber;
+	}
+	public void setAccountNumber(String accountNumber) {
+		this.accountNumber = accountNumber;
+	}
+	public String getCustomerId() {
+		return customerId;
+	}
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+	/*
+	public String getMobileNumber() {
+		return mobileNumber;
+	}
+	public void setMobileNumber(String mobileNumber) {
+		this.mobileNumber = mobileNumber;
+	}
+	public String getUserToken() {
+		return userToken;
+	}
+	public void setUserToken(String userToken) {
+		this.userToken = userToken;
+	}
+	*/
+	public String getBankToken() {
+		return bankToken;
+	}
+	public void setBankToken(String bankToken) {
+		this.bankToken = bankToken;
+	}
+	public String getAmount() {
+		return amount;
+	}
+	public void setAmount(String amount) {
+		this.amount = amount;
+	}
+	public String getTransactionType() {
+		return transactionType;
+	}
+	public void setTransactionType(String transactionType) {
+		this.transactionType = transactionType;
+	}
+	public String getActive() {
+		return active;
+	}
+	public void setActive(String active) {
+		this.active = active;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getValidTill() {
+		return validTill;
+	}
+	public void setValidTill(String validTill) {
+		this.validTill = validTill;
+	}
+	
+	@Override
+    public String toString() {
+		String str = "{";
+		if(getCustomerId()!=null)
+			str+="\"_id\":\"" + getCustomerId() + "\",";
+		if(getSortCode()!=null)
+			str+="\"_id\":\"" + getSortCode() + "\",";
+		if(getAccountNumber()!=null)
+			str+="\"_id\":\"" + getAccountNumber() + "\",";
+		if(getAmount()!=null)
+			str+="\"_id\":\"" + getAmount() + "\",";
+		if(getBankToken()!=null)
+			str+="\"_id\":\"" + getBankToken() + "\",";
+		if(getActive()!=null)
+			str+="\"_id\":\"" + getActive() + "\",";
+		if(getStatus()!=null)
+			str+="\"_id\":\"" + getStatus() + "\",";
+		if(getTransactionType()!=null)
+			str+="\"_id\":\"" + getTransactionType() + "\",";
+		if(getValidTill()!=null)
+			str+="\"_id\":\"" + getValidTill() + "\"";
+		
+        return "{" +
+                "\"_id\":\"" + getCustomerId() + "\"," +
+                "\"_rev\":\"" + getStCode() + "\"," +
+                "\"name\":\"" + getAccountNumber() + "\"," +
+                "\"name\":\"" + getAmount() + "\"," +
+                "\"name\":\"" + getAccountNumber() + "\"," +
+                "\"name\":\"" + getAccountNumber() + "\"," +
+                "\"name\":\"" + getAccountNumber() + "\"," +
+                
+                "\"isInventor\":" + isInventor +
+                "}";
+    }
+}

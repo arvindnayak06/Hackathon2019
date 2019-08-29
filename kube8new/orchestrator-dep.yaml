@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator-dep
+spec:
+  # Defines which pods are managed by this deployment.
+  selector:
+  # Defines the labels to match to select pods which are to be managed. Must match the labels on pods!
+    matchLabels:
+      app: cardlesscash
+      microservice: orchestrator
+   # Defines how many copies of each pod do we want
+  replicas: 1
+  # This template field is a regular pod configuration 
+  # nested inside the deployment spec
+  template:
+    metadata:
+      # Set labels on the pod.
+      # This is used in the deployment selector.
+      labels:
+        app: cardlesscash
+        microservice: orchestrator
+    spec:
+      containers:
+        - name: orchestrator-microservice
+          # this must be from image repo
+          image: "au.icr.io/cardlesscash1-ns/orchestrator-microservice:20"
+          ports:
+            - name: http
+              containerPort: 8080

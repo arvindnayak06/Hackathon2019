@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.hackathon.cardlesscash</groupId>
+  <artifactId>token-microservice</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <name>token-microservice</name>
+  <description>This microservice is responsible for generating required tokens.</description>
+
+  
+  <properties>
+		<version.thorntail>2.4.0.Final</version.thorntail>
+		<version.war.plugin>2.5</version.war.plugin>	
+		<version.maven.compiler.plugin>3.1</version.maven.compiler.plugin>
+		<version.source.maven.compiler.plugin>1.8</version.source.maven.compiler.plugin>
+		<version.target.maven.compiler.plugin>1.8</version.target.maven.compiler.plugin>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  	<dependencyManagement>
+  		<dependencies>
+  			<dependency>
+  				<groupId>io.thorntail</groupId>
+  				<artifactId>bom-all</artifactId>
+  				<version>${version.thorntail}</version>
+  				<scope>import</scope>
+  				<type>pom</type>
+  			</dependency>  			
+  		</dependencies>
+  	</dependencyManagement>
+
+	<dependencies>
+<!-- 
+		<dependency>
+			<groupId>io.thorntail</groupId>
+			<artifactId>jaxrs</artifactId>
+		</dependency>
+ -->		
+		<dependency>
+    		<groupId>io.thorntail</groupId>
+    		<artifactId>jaxrs-jsonp</artifactId>
+    	</dependency>
+<!-- 
+		<dependency>
+  			<groupId>io.thorntail</groupId>
+  			<artifactId>logging</artifactId>
+		</dependency>	
+ -->		
+	</dependencies>  
+
+ 	<build>
+  	  	<finalName>${project.artifactId}</finalName>
+  		<plugins>
+  			<plugin>
+  				<artifactId>maven-war-plugin</artifactId>
+  				<version>${version.war.plugin}</version>
+  				<configuration>
+  					<failOnMissingWebXml>false</failOnMissingWebXml>
+  				</configuration>
+  			</plugin>
+  		
+			<plugin>
+				<groupId>io.thorntail</groupId>
+				<artifactId>thorntail-maven-plugin</artifactId>
+				<version>${version.thorntail}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>package</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-compiler-plugin</artifactId>
+        		<version>${version.maven.compiler.plugin}</version>
+        		<configuration>
+            		<source>${version.source.maven.compiler.plugin}</source>
+            		<target>${version.target.maven.compiler.plugin}</target>
+        </configuration>
+    </plugin>
+    
+  	</plugins>
+  </build>
+</project>

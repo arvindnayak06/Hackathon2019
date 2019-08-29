@@ -1,0 +1,261 @@
+package org.hackathon.cardless.authentication.service;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Date;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.log4j.Logger;
+import org.hackathon.cardless.authentication.model.LoginDatabase;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+
+
+public class JWTService {
+	@Inject
+	private CloudantClientService client;
+	private LoginDatabase login;
+	private Response response;
+	private JWKSet keySet;
+	private RSAKey rsaJWK;
+	private SignedJWT signedJWT;
+	private String jwtToken;
+
+	final static Logger logger = Logger.getLogger(JWTService.class);
+	
+	public JWTService() {
+		
+	}
+	
+	/*
+	 * This method is responsible for checking if the user credentials match with the 
+	 * the login_db cloudant DB and if a match is found returns the customer ID. 
+	 * If customer login record is found this method will also generate a JWT token which
+	 * is to be used for subsequent requests.
+	 */	
+	public Response validateCredentials(String username, String password) {
+   	
+    	// check if either or both are not empty or null
+    	try {
+    		if(username=="" || password=="") {
+    			logger.info("Username and password, either or both are empty");
+    			response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Username or password cannot be blank\"}").build();
+    		}
+			else if(username==null || password==null){
+				logger.info("Username and password, either or both are null");
+				response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Username and password elements must be present in request.\"}").build();
+			}
+			else {
+				// get details from login DB from cloudant based on the userid
+				logger.info("client: "+client);
+				logger.info("Fetching login details - Invoking getLoginDetailsByUsername");
+				login = client.getLoginDetailsByUsername(username.toLowerCase()); 	
+	    	
+				if(login != null) {
+					logger.info("Document received from database");
+					// check if the userId and password matches the record in DB
+					if(username.toLowerCase().equals(login.getUsername().toLowerCase()) &&
+							password.equals(login.getPassword())){	
+						logger.info("user id and password check passed.");
+						jwtToken = generateJWTToken(username);
+						logger.info("JWT Token generated: "+jwtToken);
+						response = Response.status(Response.Status.CREATED).type(MediaType.APPLICATION_JSON).entity("{\"customerId\":\""+login.getCustomerId()+"\",\"jwttoken\":\""+jwtToken+"\"}").build();
+					}
+					else {
+						// details do not match with DB
+						logger.info("user id and password check failed");
+						response = Response.status(Response.Status.UNAUTHORIZED).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"User id and password do not match\"}").build();
+					}
+				}
+				else {
+					// no such username in DB
+					logger.info("No such username in DB");
+					response = Response.status(Response.Status.NOT_FOUND).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"No Customer found\"}").build();
+				} 
+			}
+		}
+	    catch(JOSEException e) {
+	    	logger.info("Error generating JWT with JoseException: "+e);
+	    	response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Error generating JWT.\"}").build();
+		}
+	    catch(Exception e) {
+	    	logger.info("Catch all: "+e);
+	    	response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Server could not complete the request.\"}").build();
+	    }
+    	
+    	return response;
+   }
+	
+	/*
+     * This method is responsible to:
+     *    Generate a JWT token
+     *    Associate it with a user
+     *    Return the JWT
+     */
+    public String generateJWTToken(String username) throws JOSEException,IOException,ParseException {
+    	
+    	// read keySet from persistent storage
+    	logger.info("Reading RSA-Keys.json from persistent storage");
+    	keySet = JWKSet.load(new File("RSA-Keys.json"));
+		if(keySet!=null) {
+			logger.info("File read");
+			rsaJWK = (RSAKey)keySet.getKeyByKeyId("RSAKey");
+		}
+			
+		// Create RSA-signer with the private key
+		JWSSigner signer = new RSASSASigner(rsaJWK);
+		// build the header by specifying algo as RSA and the key for the key pair
+		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+										.keyID(rsaJWK.getKeyID())
+										.build();
+		// build the claim set
+		Date expTime = new Date(new Date().getTime() + 60 * 60000);
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+		    .subject(username)// sub claim
+		    .issuer("Skyhawks") // iss claim
+		    .audience("Users") // aud claim
+		    .issueTime(new Date()) // iat claim
+		    .expirationTime(expTime) // exp claim = validity 60mins
+		    .build();
+		logger.info("expirationTime set in JWT: "+expTime);
+		logger.info("issuer set in JWT: "+expTime);
+		// create an unsigned JWT with header and playload.
+		SignedJWT signedJWT = new SignedJWT(header,claimsSet);
+		// Signs with the specified signer to make this a signed JWT
+		signedJWT.sign(signer);
+		// URL encode the JWT to the format : [header-base64url].[payload-base64url].[signature-base64url]
+		String jwt = signedJWT.serialize();
+	
+		logger.info("Generated JWT Token: "+jwt);
+		return jwt;
+    }
+		
+    public Response validateJWTToken(String jwt) {//throws JOSEException,IOException,ParseException{
+    	
+    	boolean isSignatureValid = false;
+    	boolean isJWTValid = false;
+    	try {
+    		signedJWT = SignedJWT.parse(jwt);
+	
+			// Load JWK-public key set from filesystem
+	    	logger.info("Reading RSA-Public-Key.json from persistent storage");
+	    	keySet = JWKSet.load(new File("RSA-Public-Key.json"));
+		
+			if(keySet!=null) {
+				logger.info("File read");
+				rsaJWK = (RSAKey)keySet.getKeyByKeyId("RSAKey");
+				// verify the signature
+				JWSVerifier verifier = new RSASSAVerifier(rsaJWK);
+				isSignatureValid = signedJWT.verify(verifier);
+				if(isSignatureValid) {
+					logger.info("JWT Signature verified");
+				
+					// check if the claims are valid
+					JWTClaimsSet set = signedJWT.getJWTClaimsSet();
+					logger.info("expirationTime in JWT: "+set.getExpirationTime());
+					logger.info("issuer in JWT: "+set.getIssuer());
+					logger.info("Current date: "+new Date());
+					if(set.getIssuer().equals("Skyhawks"))
+						if(new Date().compareTo(set.getExpirationTime()) <=0) {
+							isJWTValid = true;
+							response = Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity("{\"isJWTValid\":\""+isJWTValid+"\"}").build();
+						}
+						else {
+							logger.info("JWT Token has expired");
+							response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"JWT token has expired.\"}").build();
+						}
+					else {
+						logger.info("JWT issuer not valid.");
+						response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"JWT issuer not valid.\"}").build();
+					}
+				}
+				else {
+					logger.info("JWT signature not valid.");
+					response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"JWT signature not valid.\"}").build();
+				}
+			}
+    	}
+    	catch(ParseException e) {
+    		logger.info("Invalid JWT format. Parsing error.\n"+e);
+    		response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Invalid JWT format. Parsing error.\"}").build();
+    	}
+    	catch(IOException e) {
+    		logger.info("Could not read keys.\n"+e);
+    		response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"Could not read keys.\"}").build();
+    	}
+    	catch(JOSEException e) {
+    		logger.info("JOSE Exception.\n"+e);
+    		response = Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON).entity("{\"error\":\"JOSE Exception.\"}").build();
+    	}
+		
+		
+		return response;
+    }
+    
+    
+	public static void persistKey(String json,String fileName) {
+    	logger.info("Inside persistKey");
+    	//  Open a connection to the file location
+    	try (FileWriter file = new FileWriter(fileName)) {    		 
+            file.write(json);
+            file.flush();
+ 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    	logger.info("key saved!!");
+    }
+	
+	public static RSAKey generateNewRSAKeys() throws JOSEException{
+
+		RSAKey rsaJWK = new RSAKeyGenerator(2048).keyID("RSAKey").generate();
+		// convert the RSA keys to JWKS - Json Web Key Set
+		String jwksJson = "{\"keys\":["+rsaJWK.toJSONString()+"]}";
+		//System.out.println("Complete Key: "+jwksJson);
+		logger.info("Complete Key: "+jwksJson);
+		logger.info("persisting to RSA-Keys.json");
+		persistKey(jwksJson,"RSA-Keys.json");
+		
+		// persist the public key separately to be used later to verify the JWTs
+		RSAKey rsaPublicJWK = rsaJWK.toPublicJWK();	
+		jwksJson = "{\"keys\":["+rsaPublicJWK.toJSONString()+"]}";
+		//System.out.println("Public Key: "+jwksJson);
+		logger.info("Complete Key: "+jwksJson);
+		logger.info("persisting to RSA-Public-Key.json");
+		persistKey(jwksJson,"RSA-Public-Key.json");
+		
+		return rsaJWK;
+	}
+	
+	public static void main(String args[]) {
+		JWTService js = new JWTService();
+		
+		try {
+			generateNewRSAKeys();
+			String jwt = js.generateJWTToken("Arvind");
+			System.out.println("JWT: "+jwt);
+			
+			System.out.println(js.validateJWTToken(jwt));
+		}
+		catch(Exception e){
+			System.out.println("Exception: "+e);
+		}
+	}
+		
+}

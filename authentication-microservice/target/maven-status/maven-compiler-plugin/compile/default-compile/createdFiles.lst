@@ -1,0 +1,6 @@
+org\hackathon\cardless\authentication\api\RestActivator.class
+org\hackathon\cardless\authentication\service\CloudantClientService.class
+org\hackathon\cardless\authentication\model\Credentials.class
+org\hackathon\cardless\authentication\model\LoginDatabase.class
+org\hackathon\cardless\authentication\service\JWTService.class
+org\hackathon\cardless\authentication\api\AuthenticationEndpoint.class

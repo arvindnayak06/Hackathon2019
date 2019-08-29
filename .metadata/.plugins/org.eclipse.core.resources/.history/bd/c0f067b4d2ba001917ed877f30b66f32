@@ -1,0 +1,57 @@
+package org.hackathon.cardless.transaction.model;
+
+public class TransactionReq {
+
+	private String sortCode;
+	private String accountNumber;
+	private String customerId;
+	private String amount;
+	private String transactionType;
+    private static final long serialVersionUID = 42L;
+    
+    public TransactionReq() {
+    	
+    }
+
+	public TransactionReq(String sortCode, String accountNumber, String customerId, String amount,
+			String transactionType) {
+		super();
+		this.sortCode = sortCode;
+		this.accountNumber = accountNumber;
+		this.customerId = customerId;
+		this.amount = amount;
+		this.transactionType = transactionType;
+	}
+	
+	public String getSortCode() {
+		return sortCode;
+	}
+	public void setSortCode(String sortCode) {
+		this.sortCode = sortCode;
+	}
+	public String getAccountNumber() {
+		return accountNumber;
+	}
+	public void setAccountNumber(String accountNumber) {
+		this.accountNumber = accountNumber;
+	}
+	public String getCustomerId() {
+		return customerId;
+	}
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+	public String getAmount() {
+		return amount;
+	}
+	public void setAmount(String amount) {
+		this.amount = amount;
+	}
+	public String getTransactionType() {
+		return transactionType;
+	}
+	public void setTransactionType(String transactionType) {
+		this.transactionType = transactionType;
+	}
+
+}

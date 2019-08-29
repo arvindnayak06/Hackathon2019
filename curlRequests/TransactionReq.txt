@@ -1,0 +1,1 @@
+{"sortCode":"202020","accountNumber":"87654321","customerId":"12345","transactionType":"CardlessCash","amount":"100.10"}

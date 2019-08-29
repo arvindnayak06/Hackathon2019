@@ -1,0 +1,17 @@
+package org.hackathon.cardless.transaction.model;
+
+public class Transaction {
+	private String sortCode;
+	private String accountNumber;
+	private String customerId;
+	private String mobileNumber;
+	private String userToken;
+	private String bankToken;
+	private String amount;
+	private String transactionType;
+	private String active;
+	private String status;
+	private String validTill;
+	
+
+}

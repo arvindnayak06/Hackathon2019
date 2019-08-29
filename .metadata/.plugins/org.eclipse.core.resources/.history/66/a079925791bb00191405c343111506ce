@@ -1,0 +1,10 @@
+package org.hackathon.cardless.orchestrator.utils;
+
+import java.util.Date;
+
+public class Test {
+	public static void main(String args[]) {
+		System.out.println(new Date().toString());
+		new Date(System.currentTimeMillis() + 60000l*60);
+	}
+}

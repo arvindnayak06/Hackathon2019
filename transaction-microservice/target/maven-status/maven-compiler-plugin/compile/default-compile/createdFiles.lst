@@ -1,0 +1,5 @@
+org\hackathon\cardless\transaction\service\CloudantQueryService.class
+org\hackathon\cardless\transaction\model\Transaction.class
+org\hackathon\cardless\transaction\model\TransactionReq.class
+org\hackathon\cardless\transaction\api\TransactionEndpoint.class
+org\hackathon\cardless\transaction\api\RestActivator.class

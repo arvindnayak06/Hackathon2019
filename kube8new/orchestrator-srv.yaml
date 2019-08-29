@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: orchestrator-srv
+spec:
+  selector:
+    app: cardlesscash
+    microservice: orchestrator
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+    nodePort: 30303
+  type: NodePort

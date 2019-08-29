@@ -1,0 +1,18 @@
+package org.hackathon.cardless.transaction.service;
+
+import javax.inject.Inject;
+
+import org.hackathon.cardless.transaction.model.Transaction;
+
+public class TransactionService {
+
+	public TransactionService() {
+		
+	}
+	
+	public boolean saveTxToDb(Transaction tx) {
+		
+		return true;
+	}
+
+}

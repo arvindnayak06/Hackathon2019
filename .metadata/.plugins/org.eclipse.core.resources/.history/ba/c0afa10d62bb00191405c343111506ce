@@ -1,0 +1,21 @@
+package org.hackathon.cardless.transaction.service;
+
+import javax.inject.Inject;
+
+import org.hackathon.cardless.transaction.model.Transaction;
+
+public class TransactionService {
+	@Inject
+	CloudantQueryService cqs;
+	public TransactionService() {
+		
+	}
+	
+	public boolean saveTxToDb(Transaction tx) {
+		cqs.connectToCloudant();
+		cqs.connectToDb
+		
+		return true;
+	}
+
+}

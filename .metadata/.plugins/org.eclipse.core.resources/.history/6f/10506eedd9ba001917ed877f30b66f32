@@ -1,0 +1,61 @@
+package org.hackathon.cardless.orchestrator.model;
+
+import org.hackathon.cardless.customeraccounts.model.Accounts;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class CustomerAccounts {
+	private String customerId;
+	private String firstName;
+	private String middleName;
+	private String lastName;
+	private String mobileNumber;
+	private String userToken;
+	private Accounts[] accounts;
+	
+	public String getCustomerId() {
+		return customerId;
+	}
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getMiddleName() {
+		return middleName;
+	}
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getMobileNumber() {
+		return mobileNumber;
+	}
+	public void setMobileNumber(String mobileNumber) {
+		this.mobileNumber = mobileNumber;
+	}
+	public String getUserToken() {
+		return userToken;
+	}
+	public void setUserToken(String userToken) {
+		this.userToken = userToken;
+	}
+	public Accounts[] getAccounts() {
+		return accounts;
+	}
+	public void setAccounts(Accounts[] accounts) {
+		this.accounts = accounts;
+	}
+	
+	
+}

@@ -1,0 +1,5 @@
+org\hackathon\cardless\customeraccounts\api\Endpoints.class
+org\hackathon\cardless\customeraccounts\service\CloudantQueryService.class
+org\hackathon\cardless\customeraccounts\api\RestActivator.class
+org\hackathon\cardless\customeraccounts\model\CustomerAccounts.class
+org\hackathon\cardless\customeraccounts\model\Accounts.class

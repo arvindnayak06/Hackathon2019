@@ -1,0 +1,12 @@
+1563884620147	Rename compilation unit 'CloudantClient.java'
+1563897987604	Rename package 'org.hackathon.cardless.Login'
+1563898257823	Rename package 'org.hackathon.cardless.authz.rest'
+1563900654643	Move compilation unit
+1563900884706	Rename package 'org.hackathon.cardless.authz.resource'
+1563902861813	Rename type 'authz'
+1563903143352	Rename type 'CloudantClientApp'
+1563909052327	Delete element
+1563987914820	Rename type 'CloudantClient'
+1563989451421	Rename type 'LoginDB'
+1563999701016	Rename type 'CloudantLoginService'
+1563999731383	Delete element
